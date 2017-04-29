@@ -1,6 +1,6 @@
 /*
- * NG版
- * 
+   NG版
+
 */
 
 #include <SimpleSDAudio.h>
@@ -25,6 +25,17 @@ int state = 0, age = 0, flag = 0;      // 儲存工作狀態的變數
 char cmd, AudioFileName[6];            // 儲存檔名及指令的變數
 boolean redo = false;                  // 儲存工作狀態(是否重新執行)
 int relay1State = 0, relay2State = 1;  // 繼電器1狀態ON , 繼電器2狀態OFF
+
+// 比較接收到的資料是否為正確指令，若不是則回傳錯誤訊息。
+char btGet[7] = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+boolean compare(char r) {
+  for (int i = 0; i < 7; i++) {
+    if (r == btGet[i]) {
+      return true;
+    }
+  }
+  return false;
+}
 
 // Callback target, prints output to serial
 void DirCallback(char *buf) {
@@ -143,7 +154,14 @@ void setup() {
 void loop() {
   if (BT.available()) {
     val = BT.read();
-    Serial.println(val);
+    if (compare(val)) {
+      Serial.println(val);
+    } else {
+      Serial.println(val);
+      val = ' ';
+      delay(2000);
+      BT.print('f');
+    }
   }
 
   digitalWrite(RELAY_1, relay1State);
